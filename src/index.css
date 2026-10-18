@@ -1,0 +1,5 @@
+@import "tailwindcss";
+
+/* 手机容器内滚动条隐藏，更像原生 App */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
