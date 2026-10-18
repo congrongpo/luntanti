@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { createRoot } from 'react-dom/client'
 import { toPng } from 'html-to-image'
@@ -21,7 +21,7 @@ type DialogState =
   | { type: 'quote'; floorId: string }
   | { type: 'move'; floorId: string }
   | { type: 'likes'; floorId: string }
-  | { type: 'insertAbove'; floorId: string } // 新增
+  | { type: 'insertAbove'; floorId: string }
   | { type: 'editTitle' }
   | { type: 'editOwnerName' }
   | { type: 'editBody' }
@@ -32,19 +32,34 @@ type DialogState =
 export default function App() {
   const [post, setPost] = useState<Post>(() => {
     try {
-      const raw = localStorage.getItem('forum-post')
-      return raw ? normalizePost(JSON.parse(raw)) : initialPost
+        const raw = localStorage.getItem('forum-post')
+        return raw ? normalizePost(JSON.parse(raw)) : initialPost
     } catch {
-      return initialPost
+        return initialPost
     }
   })
 
   const [draft, setDraft] = useState('')
   const [dialog, setDialog] = useState<DialogState>(null)
   const [showSettings, setShowSettings] = useState(false)
+  
   const listRef = useRef<HTMLDivElement>(null)
   const headerTimer = useRef<number | null>(null)
-  const phoneRef = useRef<HTMLDivElement>(null) // 新增：用来获取实际宽度
+  const phoneRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
+  const MAX_HEIGHT = 250 // 超过这个高度（约11行）就固定并滚动
+
+  // 当 draft 变化时，动态调整输入框高度
+  useLayoutEffect(() => {
+    const el = inputRef.current
+    if (!el) return
+    el.style.height = 'auto' // 先重置为自适应
+    // 设置新高度，但不能超过 MAX_HEIGHT
+    const newHeight = Math.min(el.scrollHeight, MAX_HEIGHT)
+    el.style.height = `${newHeight}px`
+    // 超过最大高度时开启滚动，否则隐藏滚动条
+    el.style.overflowY = el.scrollHeight > MAX_HEIGHT ? 'auto' : 'hidden'
+  }, [draft])
 
   useEffect(() => {
     localStorage.setItem('forum-post', JSON.stringify(post))
@@ -136,11 +151,9 @@ export default function App() {
     const selected = post.floors.slice(startFloor, endFloor + 1)
     if (selected.length === 0) return
 
-    // 【核心修改】获取当前容器的真实物理宽度（手机满屏或电脑上的390px）
     const actualWidth = phoneRef.current?.offsetWidth || 390
 
     const host = document.createElement('div')
-    // 将隐藏容器的宽度设为动态获取的宽度
     host.style.cssText = `position:absolute; top:0; left:0; z-index:-1; width:${actualWidth}px; background:#fff; opacity:0.01; pointer-events:none;`
     document.body.appendChild(host)
     const root = createRoot(host)
@@ -159,14 +172,14 @@ export default function App() {
             {keepHeader && idx === 0 && (
               <div style={{ borderBottom: '1px solid #eee', paddingBottom: '10px', marginBottom: '10px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
-                  <div style={{ fontSize: '12px', color: '#888' }}>{post.nickname || '楼主'}</div>
-                  {post.boardName && <div style={{ fontSize: '12px', color: '#888', backgroundColor: '#f3f4f6', padding: '0 4px', borderRadius: '2px' }}>{post.boardName}</div>}
+                  <div style={{ fontSize: '13px', color: '#888' }}>{post.nickname || '楼主'}</div>
+                  {post.boardName && <div style={{ fontSize: '13px', color: '#888', backgroundColor: '#f3f4f6', padding: '0 4px', borderRadius: '2px' }}>{post.boardName}</div>}
                 </div>
-                <div style={{ fontWeight: 'bold', fontSize: '18px', marginBottom: '4px', color: '#000' }}>{post.title}</div>
+                <div style={{ fontWeight: 'bold', fontSize: '20px', marginBottom: '6px', color: '#000' }}>{post.title}</div>
                 {post.body && (
-                  <div style={{ fontSize: '14px', whiteSpace: 'pre-wrap', color: '#333', lineHeight: 1.5 }}>{post.body}</div>
+                  <div style={{ fontSize: '16px', whiteSpace: 'pre-wrap', color: '#333', lineHeight: 1.6 }}>{post.body}</div>
                 )}
-                <div style={{ fontWeight: 'bold', fontSize: '14px', marginTop: '12px', marginBottom: '6px', color: '#333' }}>回帖区</div>
+                <div style={{ fontWeight: 'bold', fontSize: '15px', marginTop: '12px', marginBottom: '6px', color: '#333' }}>回帖区</div>
               </div>
             )}
             {chunk.map(floor => {
@@ -188,7 +201,7 @@ export default function App() {
           pixelRatio: 2, 
           backgroundColor: '#fff',
           style: { opacity: '1' },
-          width: actualWidth // 确保 html-to-image 也按照真实宽度去裁剪
+          width: actualWidth 
         })
         const a = document.createElement('a')
         a.href = dataUrl
@@ -205,6 +218,7 @@ export default function App() {
     root.unmount()
     document.body.removeChild(host)
   }
+
   const targetFloor = (id: string) => post.floors.find(f => f.id === id)
 
   const onHeaderPointerDown = () => {
@@ -219,12 +233,12 @@ export default function App() {
       <div ref={phoneRef} className="w-full max-w-[390px] bg-white h-screen flex flex-col shadow-xl overflow-hidden">
         
         <div className="shrink-0 z-20 bg-white border-b px-4 py-2 flex items-center justify-between">
-          <div className="text-sm font-medium truncate text-gray-700">论坛体写作器</div>
+          <div className="text-[15px] font-medium truncate text-gray-700">论坛体写作器</div>
           <button onClick={() => setShowSettings(s => !s)} className="text-xl px-2">⚙️</button>
         </div>
 
         {showSettings && (
-          <div className="shrink-0 z-20 border-b p-4 space-y-2 text-sm bg-gray-50">
+          <div className="shrink-0 z-20 border-b p-4 space-y-2 text-[14px] bg-gray-50">
             <label className="flex justify-between items-center">
               显示点赞数
               <input type="checkbox" checked={post.settings.showLikes}
@@ -232,7 +246,6 @@ export default function App() {
             </label>
             <button onClick={() => setPost(p => ({ ...p, floors: randomizeLikes(p.floors) }))}
               className="w-full py-2 border rounded bg-white">随机设置所有点赞数</button>
-            {/* 新增：点赞清零 */}
             <button onClick={() => setPost(p => ({ ...p, floors: clearLikes(p.floors) }))}
               className="w-full py-2 border rounded bg-white text-gray-600">点赞数清零</button>
             <button onClick={() => setDialog({ type: 'screenshot' })}
@@ -254,26 +267,25 @@ export default function App() {
             onPointerUp={onHeaderPointerUp}
             onPointerLeave={onHeaderPointerUp}
             onContextMenu={e => e.preventDefault()}
-            className="px-4 py-3 border-b border-gray-100 bg-gray-50 select-none relative"
+            className="px-4 py-4 border-b border-gray-100 bg-gray-50 select-none relative"
           >
-            {/* 版面名称用淡色方框框起来 */}
-            <div className="absolute top-3 right-4">
+            <div className="absolute top-4 right-4">
               {post.boardName && (
-                <span className="text-xs text-gray-500 bg-gray-200/60 px-1.5 py-0.5 rounded">{post.boardName}</span>
+                <span className="text-[13px] text-gray-500 bg-gray-200/60 px-1.5 py-0.5 rounded">{post.boardName}</span>
               )}
             </div>
-            <div className="text-xs text-gray-500 mb-1">
+            <div className="text-[13px] text-gray-500 mb-1.5">
               {post.nickname || '楼主'}
             </div>
-            <div className="text-lg font-bold mb-1.5 pr-16 break-words text-gray-900">
+            <div className="text-xl font-bold mb-2 pr-16 break-words text-gray-900">
               {post.title || '未命名帖子'}
             </div>
-            <div className="text-sm whitespace-pre-wrap break-words text-gray-800 leading-relaxed">
+            <div className="text-[16px] whitespace-pre-wrap break-words text-gray-800 leading-relaxed">
               {post.body || '（长按编辑帖子正文）'}
             </div>
           </div>
 
-          <div className="px-4 py-1.5 font-bold text-sm text-gray-700 bg-white border-b border-gray-100">
+          <div className="px-4 py-2 font-bold text-[15px] text-gray-700 bg-white border-b border-gray-100">
             回帖区
           </div>
 
@@ -284,24 +296,29 @@ export default function App() {
           ))}
 
           {post.floors.length === 0 && (
-            <div className="text-center text-xs text-gray-400 py-8">
+            <div className="text-center text-[13px] text-gray-400 py-8">
               还没有回帖，在下面输入框发送第一条
             </div>
           )}
         </div>
 
-        <div className="shrink-0 z-20 bg-white border-t p-2 flex gap-2">
+        {/* 底部固定输入框 */}
+        <div className="shrink-0 z-20 bg-white border-t p-2 flex items-end gap-2">
           <textarea
+            ref={inputRef}
             value={draft}
             onChange={e => setDraft(e.target.value)}
             onKeyDown={e => {
               if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); add() }
             }}
-            rows={1}
             placeholder={!post.title ? '添加帖子标题' : '写点什么…'}
-            className="flex-1 border rounded px-2 py-1 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="flex-1 border rounded px-3 py-2 text-[16px] resize-none focus:outline-none focus:ring-1 focus:ring-blue-500 overflow-hidden leading-relaxed"
+            style={{ minHeight: '42px' }} // 保证默认有一行的高度
           />
-          <button onClick={add} className="px-3 bg-blue-500 text-white rounded text-sm whitespace-nowrap">
+          <button 
+            onClick={add} 
+            className="px-4 py-2 bg-blue-500 text-white rounded text-[15px] whitespace-nowrap mb-[2px]"
+          >
             {!post.title ? '设置标题' : '发送'}
           </button>
         </div>
@@ -325,7 +342,6 @@ export default function App() {
           <SingleFieldDialog label="修改版面（留空则不显示）" value={post.boardName} onSave={v => setPost(p => ({ ...p, boardName: v.trim() }))} onClose={() => setDialog(null)} />
         )}
 
-        {/* 新增：向上插入楼层弹窗 */}
         {dialog?.type === 'insertAbove' && (
           <SingleFieldDialog label="输入要插入到上方的内容" value="" multiline
             onSave={v => {
@@ -352,7 +368,6 @@ export default function App() {
           return <SingleFieldDialog label="修改昵称（留空则不显示）" value={f.nickname} onSave={v => setPost(p => ({ ...p, floors: updateFloor(p.floors, f.id, { nickname: v.trim() }) }))} onClose={() => setDialog(null)} />
         })()}
         
-        {/* 修改引用逻辑：只能选当前楼层之前的楼层 */}
         {dialog?.type === 'quote' && (() => {
           const currentIndex = post.floors.findIndex(x => x.id === dialog.floorId)
           if (currentIndex === -1) return null
