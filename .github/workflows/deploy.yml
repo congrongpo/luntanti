@@ -23,6 +23,8 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+      # 添加了帮助初始化 Pages 配置
+      - uses: actions/configure-pages@v5
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:
@@ -31,9 +33,7 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    # 删除了 environment 配置块，交由 deploy-pages 自动管理
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
