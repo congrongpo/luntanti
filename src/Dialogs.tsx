@@ -1,8 +1,6 @@
 import { useState } from 'react'
 import type { Floor } from './types'
 
-// ---------- 通用：单字段编辑弹窗 ----------
-// 标题、楼主名称、正文、楼层内容、楼层昵称都复用它
 export function SingleFieldDialog({
   label, value, multiline = false, onSave, onClose,
 }: {
@@ -34,8 +32,6 @@ export function SingleFieldDialog({
   )
 }
 
-// ---------- 通用：底部抽屉菜单 ----------
-// 楼层长按、正文长按都用它，传不同的 items
 export function ActionSheet({
   items, onAction, onClose,
 }: {
@@ -57,25 +53,25 @@ export function ActionSheet({
   )
 }
 
-// ---------- 楼层菜单 ----------
+// 楼层菜单新增：向上插入
 export const FLOOR_MENU_ITEMS = [
+  { key: 'insertAbove', label: '向上插入楼层' },
   { key: 'editContent', label: '修改内容' },
   { key: 'editNickname', label: '修改昵称' },
   { key: 'quote', label: '引用某层楼' },
   { key: 'move', label: '移动到某层之上' },
   { key: 'likes', label: '修改点赞数' },
-  { key: 'owner', label: '设为楼主' },
+  { key: 'owner', label: '设为楼主 / 取消楼主' },
   { key: 'delete', label: '删除本层', danger: true },
 ]
 
-// ---------- 正文菜单 ----------
 export const HEADER_MENU_ITEMS = [
   { key: 'title', label: '修改标题' },
   { key: 'nickname', label: '修改楼主名称' },
   { key: 'body', label: '修改正文' },
+  { key: 'board', label: '版面选择' },
 ]
 
-// ---------- 楼层选择器：引用（多选）和移动（单选）共用 ----------
 export function FloorPicker({
   title, floors, multiple, selected, onConfirm, onClose,
 }: {
@@ -120,7 +116,6 @@ export function FloorPicker({
   )
 }
 
-// ---------- 点赞数编辑 ----------
 export function LikesDialog({ value, onSave, onClose }: {
   value: number
   onSave: (v: number) => void
@@ -143,7 +138,6 @@ export function LikesDialog({ value, onSave, onClose }: {
   )
 }
 
-// ---------- 截图设置弹窗 ----------
 export type ScreenshotConfig = {
   keepHeader: boolean
   startFloor: number
@@ -165,33 +159,28 @@ export function ScreenshotDialog({ totalFloors, onStart, onClose }: {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-6" onClick={onClose}>
       <div className="w-full max-w-[360px] bg-white rounded-xl p-4 space-y-3" onClick={e => e.stopPropagation()}>
         <div className="font-medium text-sm">截图设置</div>
-
         <label className="flex items-center justify-between text-sm">
           保留帖子开头
           <input type="checkbox" checked={keepHeader} onChange={e => setKeepHeader(e.target.checked)} />
         </label>
-
         <label className="flex items-center justify-between text-sm">
           开始楼层
           <select value={start} onChange={e => setStart(Number(e.target.value))} className="border rounded px-2 py-1">
             {Array.from({ length: totalFloors }, (_, i) => <option key={i} value={i}>{i + 1}楼</option>)}
           </select>
         </label>
-
         <label className="flex items-center justify-between text-sm">
           结束楼层
           <select value={end} onChange={e => setEnd(Number(e.target.value))} className="border rounded px-2 py-1">
             {Array.from({ length: totalFloors }, (_, i) => <option key={i} value={i}>{i + 1}楼</option>)}
           </select>
         </label>
-
         <label className="flex items-center justify-between text-sm">
           每张包含层数
           <input type="number" min={1} max={20} value={perShot}
             onChange={e => setPerShot(Math.max(1, Number(e.target.value) || 4))}
             className="border rounded px-2 py-1 w-16 text-center" />
         </label>
-
         <div className="flex justify-end gap-2 pt-2">
           <button onClick={onClose} className="px-3 py-1 text-sm">取消</button>
           <button onClick={() => {
