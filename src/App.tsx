@@ -267,15 +267,17 @@ export default function App() {
         )}
 
         <div ref={listRef} className="flex-1 overflow-y-auto no-scrollbar">
-          
+          {/* 帖子本体 */}
           <div
             onPointerDown={onHeaderPointerDown}
             onPointerUp={onHeaderPointerUp}
             onPointerLeave={onHeaderPointerUp}
             onContextMenu={e => e.preventDefault()}
-            className="px-4 py-3.5 border-b border-gray-100 bg-gray-50 select-none"
+            // 【修改点】把 py-3.5 改成 py-3
+            className="px-4 py-3 border-b border-gray-100 bg-gray-50 select-none"
           >
-            <div className="flex justify-between items-center mb-2">
+            {/* 楼主 + 版面 */}
+            <div className="flex justify-between items-center mb-1.5">
               <div className="text-gray-500" style={{ fontSize: `${post.settings.fontSizeSub}px` }}>
                 {post.nickname || '楼主'}
               </div>
@@ -286,15 +288,21 @@ export default function App() {
               )}
             </div>
             
-            <div className="font-bold mb-2.5 break-words text-gray-900 leading-snug" style={{ fontSize: `${post.settings.fontSizeTitle}px` }}>
+            {/* 标题 */}
+            {/* 【修改点】把 mb-2.5 改成 mb-1.5，减小行高 */}
+            <div className="font-bold mb-1.5 break-words text-gray-900" style={{ fontSize: `${post.settings.fontSizeTitle}px`, lineHeight: 1.3 }}>
               {post.title || '未命名帖子'}
             </div>
             
-            <div className="whitespace-pre-wrap break-words text-gray-800 leading-relaxed" style={{ fontSize: `${post.settings.fontSizeBody}px` }}>
+            {/* 正文 */}
+            <div 
+              className="whitespace-pre-wrap break-words text-gray-800" 
+              // 【修改点】把 leading-relaxed 换成紧凑的行高 1.4
+              style={{ fontSize: `${post.settings.fontSizeBody}px`, lineHeight: 1.4 }}
+            >
               {post.body || '（长按编辑帖子正文）'}
             </div>
           </div>
-
           <div className="px-4 py-2.5 font-bold text-gray-700 bg-white border-b border-gray-100" style={{ fontSize: `${post.settings.fontSizeBody - 1}px` }}>
             回帖区
           </div>
