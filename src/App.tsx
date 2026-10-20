@@ -228,15 +228,16 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-200 flex justify-center">
-      <div ref={phoneRef} className="w-full max-w-[390px] bg-white h-screen flex flex-col shadow-xl overflow-hidden">
+      {/* 加上 w-screen 防止手机端右侧被撑破 */}
+      <div ref={phoneRef} className="w-full w-screen max-w-[390px] bg-white h-[100dvh] flex flex-col shadow-xl overflow-hidden">
         
-        <div className="shrink-0 z-20 bg-white border-b px-4 py-2.5 flex items-center justify-between">
+        <div className="shrink-0 z-20 bg-white border-b border-gray-200 px-4 py-2.5 flex items-center justify-between">
           <div className="text-[16px] font-medium truncate text-gray-700">论坛体写作器</div>
           <button onClick={() => setShowSettings(s => !s)} className="text-xl px-2">⚙️</button>
         </div>
 
         {showSettings && (
-          <div className="shrink-0 z-20 border-b p-4 space-y-3 text-[15px] bg-gray-50 max-h-[70vh] overflow-y-auto">
+          <div className="shrink-0 z-20 border-b border-gray-200 p-4 space-y-3 text-[15px] bg-gray-50 max-h-[70vh] overflow-y-auto">
             <div className="space-y-3 pb-3 border-b border-gray-200">
               <div className="text-gray-500 text-[13px] mb-1">字体大小设置</div>
               <FontSizeSetting label="标题字号" value={post.settings.fontSizeTitle} onChange={v => setPost(p => ({ ...p, settings: { ...p.settings, fontSizeTitle: v } }))} />
@@ -267,16 +268,14 @@ export default function App() {
         )}
 
         <div ref={listRef} className="flex-1 overflow-y-auto no-scrollbar">
-          {/* 帖子本体 */}
+          
           <div
             onPointerDown={onHeaderPointerDown}
             onPointerUp={onHeaderPointerUp}
             onPointerLeave={onHeaderPointerUp}
             onContextMenu={e => e.preventDefault()}
-            // 【修改点】把 py-3.5 改成 py-3
             className="px-4 py-3 border-b border-gray-200 bg-gray-50 select-none"
           >
-            {/* 楼主 + 版面 */}
             <div className="flex justify-between items-center mb-1.5">
               <div className="text-gray-500" style={{ fontSize: `${post.settings.fontSizeSub}px` }}>
                 {post.nickname || '楼主'}
@@ -288,21 +287,15 @@ export default function App() {
               )}
             </div>
             
-            {/* 标题 */}
-            {/* 【修改点】把 mb-2.5 改成 mb-1.5，减小行高 */}
             <div className="font-bold mb-1.5 break-words text-gray-900" style={{ fontSize: `${post.settings.fontSizeTitle}px`, lineHeight: 1.3 }}>
               {post.title || '未命名帖子'}
             </div>
             
-            {/* 正文 */}
-            <div 
-              className="whitespace-pre-wrap break-words text-gray-800" 
-              // 【修改点】把 leading-relaxed 换成紧凑的行高 1.4
-              style={{ fontSize: `${post.settings.fontSizeBody}px`, lineHeight: 1.4 }}
-            >
+            <div className="whitespace-pre-wrap break-words text-gray-800" style={{ fontSize: `${post.settings.fontSizeBody}px`, lineHeight: 1.4 }}>
               {post.body || '（长按编辑帖子正文）'}
             </div>
           </div>
+
           <div className="px-4 py-2.5 font-bold text-gray-700 bg-white border-b border-gray-200" style={{ fontSize: `${post.settings.fontSizeBody - 1}px` }}>
             回帖区
           </div>
@@ -320,7 +313,8 @@ export default function App() {
           )}
         </div>
 
-        <div className="shrink-0 z-20 bg-white border-t p-2.5 flex items-end gap-2">
+        {/* 修改了这里：去掉黑色边框，改为 bg-gray-100，rounded-2xl */}
+        <div className="shrink-0 z-20 bg-white border-t border-gray-200 p-2.5 pb-4 flex items-end gap-2">
           <textarea
             ref={inputRef}
             value={draft}
@@ -329,12 +323,12 @@ export default function App() {
               if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); add() }
             }}
             placeholder={!post.title ? '添加帖子标题' : '写点什么…'}
-            className="flex-1 border rounded px-3 py-2.5 resize-none focus:outline-none focus:ring-1 focus:ring-blue-500 overflow-hidden leading-relaxed"
-            style={{ minHeight: '46px', fontSize: `${post.settings.fontSizeBody}px` }}
+            className="flex-1 bg-gray-100 rounded-2xl px-4 py-2.5 resize-none focus:outline-none focus:ring-1 focus:ring-blue-500 overflow-hidden"
+            style={{ minHeight: '44px', fontSize: `${post.settings.fontSizeBody}px`, lineHeight: 1.4 }}
           />
           <button 
             onClick={add} 
-            className="px-4 py-2.5 bg-blue-500 text-white rounded whitespace-nowrap mb-[1px]"
+            className="px-4 py-2.5 bg-blue-500 text-white rounded-xl whitespace-nowrap mb-[1px]"
             style={{ fontSize: `${post.settings.fontSizeBody - 1}px` }}
           >
             {!post.title ? '设置标题' : '发送'}

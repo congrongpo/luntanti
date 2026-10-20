@@ -24,10 +24,10 @@ export function FloorItem({ floor, index, floors, settings, onLongPress }: Props
       onPointerUp={cancel}
       onPointerLeave={cancel}
       onContextMenu={e => e.preventDefault()}
-      // 去掉了原来的 border-b border-gray-200
-      className="px-4 pt-2.5 pb-0 select-none bg-white"
+      // 去掉 pb，只保留 pt
+      className="px-4 pt-2.5 select-none bg-white"
     >
-      <div className="text-gray-500 mb-1.5 flex items-center flex-wrap" style={{ fontSize: `${settings.fontSizeSub}px` }}>
+      <div className="text-gray-500 mb-1 flex items-center flex-wrap" style={{ fontSize: `${settings.fontSizeSub}px` }}>
         <span className="font-medium text-gray-600 mr-2">{index + 1}楼</span>
         {floor.nickname && <span className="font-medium text-gray-700 mr-2">{floor.nickname}</span>}
         {floor.isOwner && (
@@ -66,15 +66,16 @@ export function FloorItem({ floor, index, floors, settings, onLongPress }: Props
       </div>
 
       {settings.showLikes && (
-        <div className="text-gray-400 mt-1.5 flex justify-end items-center gap-1" style={{ fontSize: `${settings.fontSizeSub}px` }}>
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        // 强制去掉所有的 padding 和 margin，防止移动端撑开
+        <div className="text-gray-400 mt-1 mb-0 p-0 flex justify-end items-center gap-1" style={{ fontSize: `${settings.fontSizeSub}px` }}>
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.514" />
           </svg>
           {floor.likes}
         </div>
       )}
 
-      {/* 缩进分割线：mx-1 控制两边缩进距离，h-[1px] 是线高，bg-[#ebebeb] 是线的颜色 */}
+      {/* 线：上边距 mt-1.5（更近），下边距 mb-1（为下一层留一点底），右边缩进 */}
       <div className="mx-1 mt-3 h-[1px] bg-[#ebebeb]"></div>
     </div>
   )
