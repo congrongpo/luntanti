@@ -25,7 +25,7 @@ export function FloorItem({ floor, index, floors, settings, onLongPress }: Props
       onPointerLeave={cancel}
       onContextMenu={e => e.preventDefault()}
       // 去掉了原来的 border-b border-gray-200
-      className="px-4 py-3 select-none bg-white"
+      className="px-4 pt-2.5 pb-0 select-none bg-white"
     >
       <div className="text-gray-500 mb-1.5 flex items-center flex-wrap" style={{ fontSize: `${settings.fontSizeSub}px` }}>
         <span className="font-medium text-gray-600 mr-2">{index + 1}楼</span>
