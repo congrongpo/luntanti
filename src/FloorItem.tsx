@@ -24,9 +24,9 @@ export function FloorItem({ floor, index, floors, settings, onLongPress }: Props
       onPointerUp={cancel}
       onPointerLeave={cancel}
       onContextMenu={e => e.preventDefault()}
-      className="px-4 py-2 border-b border-gray-100 select-none bg-white"
+      // 去掉了原来的 border-b border-gray-200
+      className="px-4 py-3 select-none bg-white"
     >
-      {/* 第一行：楼层号 + 昵称 + 楼主标 */}
       <div className="text-gray-500 mb-1.5 flex items-center flex-wrap" style={{ fontSize: `${settings.fontSizeSub}px` }}>
         <span className="font-medium text-gray-600 mr-2">{index + 1}楼</span>
         {floor.nickname && <span className="font-medium text-gray-700 mr-2">{floor.nickname}</span>}
@@ -40,17 +40,16 @@ export function FloorItem({ floor, index, floors, settings, onLongPress }: Props
         )}
       </div>
 
-      {/* 引用块 */}
       {floor.quotes.length > 0 && (
         <div 
-          className="bg-gray-100 rounded-lg p-2 text-gray-500 mb-2 space-y-0.5"
+          className="border border-[#f0f0f0] bg-[#fafafa] rounded-lg p-2 text-gray-500 mb-2 space-y-0.5"
           style={{ fontSize: `${settings.fontSizeSub}px` }}
         >
           {floor.quotes.map(qid => {
             const q = floors.find(f => f.id === qid)
             if (!q) return null
             return (
-              <div key={qid} className="line-clamp-2">
+              <div key={qid} className="line-clamp-2 leading-snug">
                 <span className="font-medium text-gray-600 mr-1">{q.nickname || '匿名'}:</span>
                 {q.content}
               </div>
@@ -59,16 +58,13 @@ export function FloorItem({ floor, index, floors, settings, onLongPress }: Props
         </div>
       )}
 
-      {/* 第二行：正文 */}
       <div 
-        className="text-gray-800 whitespace-pre-wrap break-words leading-relaxed"
-        style={{ fontSize: `${settings.fontSizeBody}px`,
-          lineHeight: 1.4  }}
+        className="text-gray-800 whitespace-pre-wrap break-words"
+        style={{ fontSize: `${settings.fontSizeBody}px`, lineHeight: 1.4 }}
       >
         {floor.content}
       </div>
 
-      {/* 点赞数 */}
       {settings.showLikes && (
         <div className="text-gray-400 mt-1.5 flex justify-end items-center gap-1" style={{ fontSize: `${settings.fontSizeSub}px` }}>
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -77,6 +73,9 @@ export function FloorItem({ floor, index, floors, settings, onLongPress }: Props
           {floor.likes}
         </div>
       )}
+
+      {/* 缩进分割线：mx-1 控制两边缩进距离，h-[1px] 是线高，bg-[#ebebeb] 是线的颜色 */}
+      <div className="mx-1 mt-3 h-[1px] bg-[#ebebeb]"></div>
     </div>
   )
 }

@@ -274,7 +274,7 @@ export default function App() {
             onPointerLeave={onHeaderPointerUp}
             onContextMenu={e => e.preventDefault()}
             // 【修改点】把 py-3.5 改成 py-3
-            className="px-4 py-3 border-b border-gray-100 bg-gray-50 select-none"
+            className="px-4 py-3 border-b border-gray-200 bg-gray-50 select-none"
           >
             {/* 楼主 + 版面 */}
             <div className="flex justify-between items-center mb-1.5">
@@ -303,7 +303,7 @@ export default function App() {
               {post.body || '（长按编辑帖子正文）'}
             </div>
           </div>
-          <div className="px-4 py-2.5 font-bold text-gray-700 bg-white border-b border-gray-100" style={{ fontSize: `${post.settings.fontSizeBody - 1}px` }}>
+          <div className="px-4 py-2.5 font-bold text-gray-700 bg-white border-b border-gray-200" style={{ fontSize: `${post.settings.fontSizeBody - 1}px` }}>
             回帖区
           </div>
 
