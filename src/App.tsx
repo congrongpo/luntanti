@@ -80,7 +80,7 @@ export default function App() {
     const newHeight = Math.min(el.scrollHeight, MAX_HEIGHT)
     el.style.height = `${newHeight}px`
     el.style.overflowY = el.scrollHeight > MAX_HEIGHT ? 'auto' : 'hidden'
-  }, [draft])
+  }, [draft, post.settings.fontSizeBody])
 
   const add = () => {
     const content = draft.trim()
@@ -344,6 +344,7 @@ export default function App() {
         <div className="shrink-0 z-20 bg-white border-t border-gray-200 p-2.5 pb-4 flex items-end gap-2">
           <textarea
             ref={inputRef}
+            rows={1}
             value={draft}
             onChange={e => setDraft(e.target.value)}
             onKeyDown={e => {
