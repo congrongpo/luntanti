@@ -9,7 +9,7 @@ import {
 } from './types'
 import { FloorItem } from './FloorItem'
 import {
-  ActionSheet, SingleFieldDialog, FloorPicker, LikesDialog, ScreenshotDialog,
+  ActionSheet, SingleFieldDialog, FloorPicker, LikesDialog, ScreenshotDialog, FontSizeSetting,
   FLOOR_MENU_ITEMS, HEADER_MENU_ITEMS, type ScreenshotConfig,
 } from './Dialogs'
 
@@ -47,9 +47,8 @@ export default function App() {
   const headerTimer = useRef<number | null>(null)
   const phoneRef = useRef<HTMLDivElement>(null)
   
-  // 输入框自适应高度相关
   const inputRef = useRef<HTMLTextAreaElement>(null)
-  const MAX_HEIGHT = 270 // 字号变大后，11行的高度上限适当提高
+  const MAX_HEIGHT = 270
 
   useEffect(() => {
     localStorage.setItem('forum-post', JSON.stringify(post))
@@ -59,7 +58,6 @@ export default function App() {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight })
   }, [post.floors.length])
 
-  // 动态调整输入框高度
   useLayoutEffect(() => {
     const el = inputRef.current
     if (!el) return
@@ -172,21 +170,21 @@ export default function App() {
             {keepHeader && idx === 0 && (
               <div style={{ borderBottom: '1px solid #eee', paddingBottom: '12px', marginBottom: '12px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                  <div style={{ fontSize: '14px', color: '#888' }}>{post.nickname || '楼主'}</div>
-                  {post.boardName && <div style={{ fontSize: '13px', color: '#888', backgroundColor: '#f3f4f6', padding: '0 4px', borderRadius: '2px' }}>{post.boardName}</div>}
+                  <div style={{ fontSize: `${post.settings.fontSizeSub}px`, color: '#888' }}>{post.nickname || '楼主'}</div>
+                  {post.boardName && <div style={{ fontSize: `${post.settings.fontSizeSub - 1}px`, color: '#888', backgroundColor: '#f3f4f6', padding: '0 4px', borderRadius: '2px' }}>{post.boardName}</div>}
                 </div>
-                <div style={{ fontWeight: 'bold', fontSize: '22px', marginBottom: '8px', color: '#000' }}>{post.title}</div>
+                <div style={{ fontWeight: 'bold', fontSize: `${post.settings.fontSizeTitle}px`, marginBottom: '8px', color: '#000' }}>{post.title}</div>
                 {post.body && (
-                  <div style={{ fontSize: '17px', whiteSpace: 'pre-wrap', color: '#333', lineHeight: 1.6 }}>{post.body}</div>
+                  <div style={{ fontSize: `${post.settings.fontSizeBody}px`, whiteSpace: 'pre-wrap', color: '#333', lineHeight: 1.6 }}>{post.body}</div>
                 )}
-                <div style={{ fontWeight: 'bold', fontSize: '16px', marginTop: '14px', marginBottom: '6px', color: '#333' }}>回帖区</div>
+                <div style={{ fontWeight: 'bold', fontSize: `${post.settings.fontSizeTitle - 4}px`, marginTop: '14px', marginBottom: '6px', color: '#333' }}>回帖区</div>
               </div>
             )}
             {chunk.map(floor => {
               const originalIndex = post.floors.findIndex(f => f.id === floor.id)
               return (
                 <FloorItem key={floor.id} floor={floor} index={originalIndex}
-                  floors={post.floors} showLikes={post.settings.showLikes}
+                  floors={post.floors} settings={post.settings}
                   onLongPress={() => {}} />
               )
             })}
@@ -232,15 +230,20 @@ export default function App() {
     <div className="min-h-screen bg-gray-200 flex justify-center">
       <div ref={phoneRef} className="w-full max-w-[390px] bg-white h-screen flex flex-col shadow-xl overflow-hidden">
         
-        {/* 顶栏 */}
         <div className="shrink-0 z-20 bg-white border-b px-4 py-2.5 flex items-center justify-between">
           <div className="text-[16px] font-medium truncate text-gray-700">论坛体写作器</div>
           <button onClick={() => setShowSettings(s => !s)} className="text-xl px-2">⚙️</button>
         </div>
 
-        {/* 设置面板 */}
         {showSettings && (
-          <div className="shrink-0 z-20 border-b p-4 space-y-2.5 text-[15px] bg-gray-50">
+          <div className="shrink-0 z-20 border-b p-4 space-y-3 text-[15px] bg-gray-50 max-h-[70vh] overflow-y-auto">
+            <div className="space-y-3 pb-3 border-b border-gray-200">
+              <div className="text-gray-500 text-[13px] mb-1">字体大小设置</div>
+              <FontSizeSetting label="标题字号" value={post.settings.fontSizeTitle} onChange={v => setPost(p => ({ ...p, settings: { ...p.settings, fontSizeTitle: v } }))} />
+              <FontSizeSetting label="正文字号" value={post.settings.fontSizeBody} onChange={v => setPost(p => ({ ...p, settings: { ...p.settings, fontSizeBody: v } }))} />
+              <FontSizeSetting label="辅助字号" value={post.settings.fontSizeSub} onChange={v => setPost(p => ({ ...p, settings: { ...p.settings, fontSizeSub: v } }))} />
+            </div>
+
             <label className="flex justify-between items-center">
               显示点赞数
               <input type="checkbox" className="w-4 h-4" checked={post.settings.showLikes}
@@ -263,10 +266,8 @@ export default function App() {
           </div>
         )}
 
-        {/* 帖子列表 */}
         <div ref={listRef} className="flex-1 overflow-y-auto no-scrollbar">
           
-          {/* 帖子本体 */}
           <div
             onPointerDown={onHeaderPointerDown}
             onPointerUp={onHeaderPointerUp}
@@ -274,48 +275,43 @@ export default function App() {
             onContextMenu={e => e.preventDefault()}
             className="px-4 py-3.5 border-b border-gray-100 bg-gray-50 select-none"
           >
-            {/* 楼主 + 版面 */}
             <div className="flex justify-between items-center mb-2">
-              <div className="text-[14px] text-gray-500">
+              <div className="text-gray-500" style={{ fontSize: `${post.settings.fontSizeSub}px` }}>
                 {post.nickname || '楼主'}
               </div>
               {post.boardName && (
-                <span className="text-[13px] text-gray-500 bg-gray-200/60 px-1.5 py-0.5 rounded">
+                <span className="text-gray-500 bg-gray-200/60 px-2 py-0.5 rounded" style={{ fontSize: `${post.settings.fontSizeSub - 1}px` }}>
                   {post.boardName}
                 </span>
               )}
             </div>
             
-            {/* 标题 22px */}
-            <div className="text-[22px] font-bold mb-2.5 break-words text-gray-900 leading-snug">
+            <div className="font-bold mb-2.5 break-words text-gray-900 leading-snug" style={{ fontSize: `${post.settings.fontSizeTitle}px` }}>
               {post.title || '未命名帖子'}
             </div>
             
-            {/* 正文 17px */}
-            <div className="text-[17px] whitespace-pre-wrap break-words text-gray-800 leading-relaxed">
+            <div className="whitespace-pre-wrap break-words text-gray-800 leading-relaxed" style={{ fontSize: `${post.settings.fontSizeBody}px` }}>
               {post.body || '（长按编辑帖子正文）'}
             </div>
           </div>
 
-          <div className="px-4 py-2.5 font-bold text-[16px] text-gray-700 bg-white border-b border-gray-100">
+          <div className="px-4 py-2.5 font-bold text-gray-700 bg-white border-b border-gray-100" style={{ fontSize: `${post.settings.fontSizeBody - 1}px` }}>
             回帖区
           </div>
 
-          {/* 楼层列表 */}
           {post.floors.map((f, i) => (
             <FloorItem key={f.id} floor={f} index={i} floors={post.floors}
-              showLikes={post.settings.showLikes}
+              settings={post.settings}
               onLongPress={id => setDialog({ type: 'floorMenu', floorId: id })} />
           ))}
 
           {post.floors.length === 0 && (
-            <div className="text-center text-[14px] text-gray-400 py-10">
+            <div className="text-center text-gray-400 py-10" style={{ fontSize: `${post.settings.fontSizeSub}px` }}>
               还没有回帖，在下面输入框发送第一条
             </div>
           )}
         </div>
 
-        {/* 底部输入框 */}
         <div className="shrink-0 z-20 bg-white border-t p-2.5 flex items-end gap-2">
           <textarea
             ref={inputRef}
@@ -325,18 +321,18 @@ export default function App() {
               if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); add() }
             }}
             placeholder={!post.title ? '添加帖子标题' : '写点什么…'}
-            className="flex-1 border rounded px-3 py-2.5 text-[17px] resize-none focus:outline-none focus:ring-1 focus:ring-blue-500 overflow-hidden leading-relaxed"
-            style={{ minHeight: '46px' }}
+            className="flex-1 border rounded px-3 py-2.5 resize-none focus:outline-none focus:ring-1 focus:ring-blue-500 overflow-hidden leading-relaxed"
+            style={{ minHeight: '46px', fontSize: `${post.settings.fontSizeBody}px` }}
           />
           <button 
             onClick={add} 
-            className="px-4 py-2.5 bg-blue-500 text-white rounded text-[16px] whitespace-nowrap mb-[1px]"
+            className="px-4 py-2.5 bg-blue-500 text-white rounded whitespace-nowrap mb-[1px]"
+            style={{ fontSize: `${post.settings.fontSizeBody - 1}px` }}
           >
             {!post.title ? '设置标题' : '发送'}
           </button>
         </div>
 
-        {/* 弹窗部分 */}
         {dialog?.type === 'floorMenu' && (
           <ActionSheet items={FLOOR_MENU_ITEMS} onClose={() => setDialog(null)} onAction={key => onFloorAction(key, dialog.floorId)} />
         )}

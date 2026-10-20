@@ -15,6 +15,9 @@ export type Post = {
   boardName: string
   settings: {
     showLikes: boolean
+    fontSizeTitle: number    // 新增：标题字号
+    fontSizeBody: number     // 新增：正文字号
+    fontSizeSub: number      // 新增：副文本字号
   }
   floors: Floor[]
 }
@@ -34,7 +37,12 @@ export const initialPost: Post = {
   nickname: '',
   body: '',
   boardName: '',
-  settings: { showLikes: true },
+  settings: { 
+    showLikes: true,
+    fontSizeTitle: 22,
+    fontSizeBody: 17,
+    fontSizeSub: 14,
+  },
   floors: [],
 }
 
@@ -58,14 +66,12 @@ export const moveFloorAbove = (floors: Floor[], fromId: string, targetId: string
   return rest
 }
 
-// 允许同时存在多个楼主（点击切换状态）
 export const setOwner = (floors: Floor[], id: string) =>
   floors.map(f => (f.id === id ? { ...f, isOwner: !f.isOwner } : f))
 
 export const randomizeLikes = (floors: Floor[]) =>
   floors.map(f => ({ ...f, likes: Math.floor(Math.random() * 100) }))
 
-// 新增：点赞清零
 export const clearLikes = (floors: Floor[]) =>
   floors.map(f => ({ ...f, likes: 0 }))
 
@@ -74,7 +80,12 @@ export const normalizePost = (data: any): Post => ({
   nickname: data?.nickname ?? '',
   body: data?.body ?? '',
   boardName: data?.boardName ?? '',
-  settings: { showLikes: data?.settings?.showLikes ?? true },
+  settings: { 
+    showLikes: data?.settings?.showLikes ?? true,
+    fontSizeTitle: data?.settings?.fontSizeTitle ?? 22,
+    fontSizeBody: data?.settings?.fontSizeBody ?? 17,
+    fontSizeSub: data?.settings?.fontSizeSub ?? 14,
+  },
   floors: Array.isArray(data?.floors)
     ? data.floors.map((f: any) => ({
         id: f.id || crypto.randomUUID(),
