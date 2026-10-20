@@ -23,8 +23,8 @@ export function FloorItem({ floor, index, floors, settings, onLongPress }: Props
       onPointerDown={start}
       onPointerUp={cancel}
       onPointerLeave={cancel}
+      onPointerCancel={cancel}
       onContextMenu={e => e.preventDefault()}
-      // 去掉 pb，只保留 pt
       className="px-4 pt-2.5 select-none bg-white"
     >
       <div className="text-gray-500 mb-1 flex items-center flex-wrap" style={{ fontSize: `${settings.fontSizeSub}px` }}>
@@ -65,8 +65,16 @@ export function FloorItem({ floor, index, floors, settings, onLongPress }: Props
         {floor.content}
       </div>
 
+      {floor.images.length > 0 && (
+        <div className="mt-2 space-y-2">
+          {floor.images.map((src, i) => (
+            <img key={i} src={src} alt={`回复图片 ${i + 1}`} draggable={false}
+              className="block max-w-full h-auto rounded" />
+          ))}
+        </div>
+      )}
+
       {settings.showLikes && (
-        // 强制去掉所有的 padding 和 margin，防止移动端撑开
         <div className="text-gray-400 mt-1 mb-0 p-0 flex justify-end items-center gap-1" style={{ fontSize: `${settings.fontSizeSub}px` }}>
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.514" />
@@ -75,8 +83,7 @@ export function FloorItem({ floor, index, floors, settings, onLongPress }: Props
         </div>
       )}
 
-      {/* 线：上边距 mt-1.5（更近），下边距 mb-1（为下一层留一点底），右边缩进 */}
-      <div className="mt-1.5 mb-1 mx-0.5 h-[1px] bg-[#ebebeb]"></div>
+      <div className="mt-1.5 mb-0.5 mx-0.5 h-[1px] bg-[#ebebeb]"></div>
     </div>
   )
 }

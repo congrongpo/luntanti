@@ -8,12 +8,16 @@ import {
   setOwner, randomizeLikes, clearLikes,
 } from './types'
 import { FloorItem } from './FloorItem'
+import { OwnerAvatar } from './OwnerAvatar'
+import { ImageDialog } from './ImageDialog'
 import {
   ActionSheet, SingleFieldDialog, FloorPicker, LikesDialog, ScreenshotDialog, FontSizeSetting,
   FLOOR_MENU_ITEMS, HEADER_MENU_ITEMS, type ScreenshotConfig,
 } from './Dialogs'
 
 type DialogState =
+  | { type: 'editAvatar' }
+  | { type: 'editImages'; floorId: string }
   | { type: 'floorMenu'; floorId: string }
   | { type: 'headerMenu' }
   | { type: 'editContent'; floorId: string }
@@ -42,6 +46,7 @@ export default function App() {
   const [draft, setDraft] = useState('')
   const [dialog, setDialog] = useState<DialogState>(null)
   const [showSettings, setShowSettings] = useState(false)
+  const [storageError, setStorageError] = useState(false)
   
   const listRef = useRef<HTMLDivElement>(null)
   const headerTimer = useRef<number | null>(null)
@@ -51,7 +56,17 @@ export default function App() {
   const MAX_HEIGHT = 270
 
   useEffect(() => {
-    localStorage.setItem('forum-post', JSON.stringify(post))
+    let cancelled = false
+    const report = (failed: boolean) => queueMicrotask(() => {
+      if (!cancelled) setStorageError(failed)
+    })
+    try {
+      localStorage.setItem('forum-post', JSON.stringify(post))
+      report(false)
+    } catch {
+      report(true)
+    }
+    return () => { cancelled = true }
   }, [post])
 
   useEffect(() => {
@@ -69,8 +84,8 @@ export default function App() {
 
   const add = () => {
     const content = draft.trim()
-    if (!content) return
     if (!post.title) {
+      if (!content) return
       setPost(p => ({ ...p, title: content }))
     } else {
       setPost(p => ({ ...p, floors: [...p.floors, createFloor(content)] }))
@@ -119,6 +134,7 @@ export default function App() {
 
   const onFloorAction = (key: string, floorId: string) => {
     setDialog(null)
+    if (key === 'images') setDialog({ type: 'editImages', floorId })
     if (key === 'delete') {
       setPost(p => ({ ...p, floors: deleteFloor(p.floors, floorId) }))
       return
@@ -137,6 +153,7 @@ export default function App() {
 
   const onHeaderAction = (key: string) => {
     setDialog(null)
+    if (key === 'avatar') setDialog({ type: 'editAvatar' })
     if (key === 'title') setDialog({ type: 'editTitle' })
     if (key === 'nickname') setDialog({ type: 'editOwnerName' })
     if (key === 'body') setDialog({ type: 'editBody' })
@@ -170,7 +187,10 @@ export default function App() {
             {keepHeader && idx === 0 && (
               <div style={{ borderBottom: '1px solid #eee', paddingBottom: '12px', marginBottom: '12px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                  <div style={{ fontSize: `${post.settings.fontSizeSub}px`, color: '#888' }}>{post.nickname || '楼主'}</div>
+                  <div className="flex items-center gap-2" style={{ fontSize: `${post.settings.fontSizeBody}px`, color: '#333' }}>
+                    <OwnerAvatar src={post.avatar} />
+                    {post.nickname || '楼主'}
+                  </div>
                   {post.boardName && <div style={{ fontSize: `${post.settings.fontSizeSub - 1}px`, color: '#888', backgroundColor: '#f3f4f6', padding: '0 4px', borderRadius: '2px' }}>{post.boardName}</div>}
                 </div>
                 <div style={{ fontWeight: 'bold', fontSize: `${post.settings.fontSizeTitle}px`, marginBottom: '8px', color: '#000' }}>{post.title}</div>
@@ -195,6 +215,7 @@ export default function App() {
       await new Promise(r => setTimeout(r, 200))
 
       try {
+        await Promise.all(Array.from(host.querySelectorAll('img')).map(img => img.decode()))
         const dataUrl = await toPng(host, { 
           pixelRatio: 2, 
           backgroundColor: '#fff',
@@ -228,13 +249,18 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-200 flex justify-center">
-      {/* 加上 w-screen 防止手机端右侧被撑破 */}
       <div ref={phoneRef} className="w-full w-screen max-w-[390px] bg-white h-[100dvh] flex flex-col shadow-xl overflow-hidden">
         
         <div className="shrink-0 z-20 bg-white border-b border-gray-200 px-4 py-2.5 flex items-center justify-between">
           <div className="text-[16px] font-medium truncate text-gray-700">论坛体写作器</div>
           <button onClick={() => setShowSettings(s => !s)} className="text-xl px-2">⚙️</button>
         </div>
+
+        {storageError && (
+          <div role="alert" className="shrink-0 px-4 py-2 text-sm text-red-600 bg-red-50">
+            自动保存失败，可能是图片超出存储空间。请导出 JSON 备份，或移除部分图片后重试。
+          </div>
+        )}
 
         {showSettings && (
           <div className="shrink-0 z-20 border-b border-gray-200 p-4 space-y-3 text-[15px] bg-gray-50 max-h-[70vh] overflow-y-auto">
@@ -273,11 +299,13 @@ export default function App() {
             onPointerDown={onHeaderPointerDown}
             onPointerUp={onHeaderPointerUp}
             onPointerLeave={onHeaderPointerUp}
+            onPointerCancel={onHeaderPointerUp}
             onContextMenu={e => e.preventDefault()}
             className="px-4 py-3 border-b border-gray-200 bg-gray-50 select-none"
           >
             <div className="flex justify-between items-center mb-1.5">
-              <div className="text-gray-500" style={{ fontSize: `${post.settings.fontSizeSub}px` }}>
+              <div className="text-gray-800 flex items-center gap-2 min-w-0" style={{ fontSize: `${post.settings.fontSizeBody}px` }}>
+                <OwnerAvatar src={post.avatar} />
                 {post.nickname || '楼主'}
               </div>
               {post.boardName && (
@@ -313,7 +341,6 @@ export default function App() {
           )}
         </div>
 
-        {/* 修改了这里：去掉黑色边框，改为 bg-gray-100，rounded-2xl */}
         <div className="shrink-0 z-20 bg-white border-t border-gray-200 p-2.5 pb-4 flex items-end gap-2">
           <textarea
             ref={inputRef}
@@ -357,7 +384,6 @@ export default function App() {
         {dialog?.type === 'insertAbove' && (
           <SingleFieldDialog label="输入要插入到上方的内容" value="" multiline
             onSave={v => {
-              if (!v.trim()) return
               setPost(p => {
                 const idx = p.floors.findIndex(f => f.id === dialog.floorId)
                 if (idx === -1) return p
@@ -368,6 +394,19 @@ export default function App() {
             }}
             onClose={() => setDialog(null)} />
         )}
+
+        {dialog?.type === 'editAvatar' && (
+          <ImageDialog avatar images={post.avatar ? [post.avatar] : []}
+            onSave={images => setPost(p => ({ ...p, avatar: images[0] ?? '' }))}
+            onClose={() => setDialog(null)} />
+        )}
+        {dialog?.type === 'editImages' && (() => {
+          const f = targetFloor(dialog.floorId)
+          if (!f) return null
+          return <ImageDialog images={f.images}
+            onSave={images => setPost(p => ({ ...p, floors: updateFloor(p.floors, f.id, { images }) }))}
+            onClose={() => setDialog(null)} />
+        })()}
 
         {dialog?.type === 'editContent' && (() => {
           const f = targetFloor(dialog.floorId)

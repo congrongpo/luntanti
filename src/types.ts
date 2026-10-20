@@ -1,52 +1,53 @@
-// ---------- 类型 ----------
 export type Floor = {
   id: string
   nickname: string
   content: string
+  images: string[]
   likes: number
   quotes: string[]
   isOwner: boolean
 }
 
 export type Post = {
+  avatar: string
   title: string
   nickname: string
   body: string
   boardName: string
   settings: {
     showLikes: boolean
-    fontSizeTitle: number    // 新增：标题字号
-    fontSizeBody: number     // 新增：正文字号
-    fontSizeSub: number      // 新增：副文本字号
+    fontSizeTitle: number
+    fontSizeBody: number
+    fontSizeSub: number
   }
   floors: Floor[]
 }
 
-// ---------- 工厂 / 初始值 ----------
 export const createFloor = (content: string): Floor => ({
   id: crypto.randomUUID(),
   nickname: '',
   content,
+  images: [],
   likes: 0,
   quotes: [],
   isOwner: false,
 })
 
 export const initialPost: Post = {
+  avatar: '',
   title: '',
   nickname: '',
   body: '',
   boardName: '',
   settings: { 
     showLikes: true,
-    fontSizeTitle: 22,
+    fontSizeTitle: 19,
     fontSizeBody: 17,
     fontSizeSub: 14,
   },
   floors: [],
 }
 
-// ---------- 楼层纯函数 ----------
 export const updateFloor = (floors: Floor[], id: string, patch: Partial<Floor>) =>
   floors.map(f => (f.id === id ? { ...f, ...patch } : f))
 
@@ -76,6 +77,7 @@ export const clearLikes = (floors: Floor[]) =>
   floors.map(f => ({ ...f, likes: 0 }))
 
 export const normalizePost = (data: any): Post => ({
+  avatar: typeof data?.avatar === 'string' ? data.avatar : '',
   title: data?.title ?? '',
   nickname: data?.nickname ?? '',
   body: data?.body ?? '',
@@ -91,6 +93,7 @@ export const normalizePost = (data: any): Post => ({
         id: f.id || crypto.randomUUID(),
         nickname: f.nickname ?? '',
         content: f.content ?? '',
+        images: Array.isArray(f.images) ? f.images.filter((image: unknown) => typeof image === 'string') : [],
         likes: f.likes ?? 0,
         quotes: Array.isArray(f.quotes) ? f.quotes : [],
         isOwner: !!f.isOwner,

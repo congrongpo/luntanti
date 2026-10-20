@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import type { Floor } from './types'
 
-// 1. 通用单行/多行输入弹窗
 export function SingleFieldDialog({
   label, value, multiline = false, onSave, onClose,
 }: {
@@ -33,7 +32,6 @@ export function SingleFieldDialog({
   )
 }
 
-// 2. 底部抽屉动作菜单
 export function ActionSheet({
   items, onAction, onClose,
 }: {
@@ -55,8 +53,8 @@ export function ActionSheet({
   )
 }
 
-// 3. 楼层长按菜单项
 export const FLOOR_MENU_ITEMS = [
+  { key: 'images', label: '添加图片' },
   { key: 'insertAbove', label: '向上插入楼层' },
   { key: 'editContent', label: '修改内容' },
   { key: 'editNickname', label: '修改昵称' },
@@ -67,15 +65,14 @@ export const FLOOR_MENU_ITEMS = [
   { key: 'delete', label: '删除本层', danger: true },
 ]
 
-// 4. 帖子本体长按菜单项
 export const HEADER_MENU_ITEMS = [
+  { key: 'avatar', label: '修改楼主头像' },
   { key: 'title', label: '修改标题' },
   { key: 'nickname', label: '修改楼主名称' },
   { key: 'body', label: '修改正文' },
   { key: 'board', label: '版面选择' },
 ]
 
-// 5. 楼层选择器（引用/移动）
 export function FloorPicker({
   title, floors, multiple, selected, onConfirm, onClose,
 }: {
@@ -120,7 +117,6 @@ export function FloorPicker({
   )
 }
 
-// 6. 修改点赞弹窗
 export function LikesDialog({ value, onSave, onClose }: {
   value: number
   onSave: (v: number) => void
@@ -143,7 +139,6 @@ export function LikesDialog({ value, onSave, onClose }: {
   )
 }
 
-// 7. 截图设置弹窗
 export type ScreenshotConfig = {
   keepHeader: boolean
   startFloor: number
@@ -200,7 +195,6 @@ export function ScreenshotDialog({ totalFloors, onStart, onClose }: {
   )
 }
 
-// 8. 字体大小设置组件
 export function FontSizeSetting({
   label, value, onChange, min = 12, max = 30
 }: {

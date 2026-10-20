@@ -1,75 +1,64 @@
-# React + TypeScript + Vite
+# luntanti（论坛体写作器）
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+一个纯前端的论坛体写作工具。无需登录，打开网页直接写，写完一键导出高清长图。
 
-Currently, two official plugins are available:
+访问地址：`https://congrongpo.github.io/luntanti/`
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 核心功能
 
-## React Compiler
+**长按交互**
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+*   **长按帖子内容区（头部）**：可修改楼主头像、标题、楼主名、正文内容和版面名称。
+*   **长按楼层**：弹出操作菜单，支持：
+    *   添加图片（可多选），预览并移除图片，点击保存后生效
+    *   修改内容、修改昵称(默认不显示昵称，即匿名)
+    *   向上插入新楼层（允许内容留空）
+    *   引用其他楼层（仅能引用当前楼层之前的楼层，支持**多选**）
+    *   **移动到指定楼层之上**
+    *   修改该层点赞数
+    *   设为/取消楼主
+    *   删除本层（自动清理其他楼层对它的引用）
 
-## Expanding the ESLint configuration
+**底部输入框**
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+*   首次输入内容作为帖子标题，后续输入作为楼层回复。
+*   设置标题后，输入框留空也可以点击“发送”创建空白文本楼层；再长按该楼层添加图片，即可制作纯图片回复。
+*   输入框高度随文字行数自动增高，超过上限后内部滑动。
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+**楼主头像与回复图片**
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+*   帖子顶部在昵称左侧显示 40px 圆形头像，未设置时显示默认头像；长按帖子内容区选择“修改楼主头像”，可更换或移除头像。
+*   楼主昵称与正文使用相同的字号和颜色，字号随“正文字号”设置同步变化。
+*   回复图片显示在该楼层文字下方，支持多张图片并按内容区宽度等比缩放。
+*   头像修改入口位于帖子长按菜单，图片添加入口位于回复楼层长按菜单。
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+**自定义排版设置**
 
-```
+*   在设置面板中可独立调节标题、正文、辅助文本（楼层号/点赞数）的字号大小。
+*   提供“随机设置所有点赞数”与“点赞数清零”快捷功能。
+*   自定义**隐藏**/显示点赞数。
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+**精准长图截图**
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+*   内置截图功能，可选择截图的**起始楼层和结束楼层**。
+*   可选择是否在首张图片**保留帖子开头**。
+*   可自定义每张图片包含的楼层数（默认 4 层）。
+*   截图包含回复图片；保留帖子开头时，也会包含楼主头像和调整后的昵称样式。
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+**数据导入与导出**
 
+*   数据默认保存在浏览器本地（LocalStorage）。
+*   支持一键导出为 JSON 文件，或导入 JSON 文件恢复数据，方便**跨设备同步或备份**。
+*   头像和回复图片随帖子一起保存、导入和导出，兼容不含图片的旧版 JSON 数据。
+*   图片导入时会自动缩小并压缩。若自动保存失败，页面会提示导出 JSON 备份，或移除部分图片后重试。
+
+## 本地运行
+
+项目基于 React + Vite + Tailwind CSS 编写，纯前端，无后端依赖。
+
+```bash
+git clone https://github.com/congrongpo/luntanti.git
+cd luntanti
+npm install
+npm run dev
 ```
