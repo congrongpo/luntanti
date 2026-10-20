@@ -69,7 +69,7 @@ export function FloorItem({ floor, index, floors, settings, onLongPress }: Props
         <div className="mt-2 space-y-2">
           {floor.images.map((src, i) => (
             <img key={i} src={src} alt={`回复图片 ${i + 1}`} draggable={false}
-              className="block max-w-full h-auto rounded" />
+              className="block w-auto max-w-full h-auto rounded" />
           ))}
         </div>
       )}

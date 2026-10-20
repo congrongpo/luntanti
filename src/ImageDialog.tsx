@@ -39,8 +39,10 @@ export function ImageDialog({ images, avatar = false, onSave, onClose }: {
         <div className="overflow-y-auto space-y-3">
           {pending.map((src, index) => (
             <div key={index} className="flex items-start gap-2">
-              <img src={src} alt={avatar ? '头像预览' : `图片预览 ${index + 1}`}
-                className={avatar ? 'w-20 h-20 rounded-full object-cover' : 'min-w-0 max-h-48 object-contain flex-1'} />
+              <div className="min-w-0 flex-1">
+                <img src={src} alt={avatar ? '头像预览' : `图片预览 ${index + 1}`}
+                  className={avatar ? 'w-20 h-20 rounded-full object-cover' : 'block w-auto h-auto max-w-full max-h-48 object-contain'} />
+              </div>
               <button disabled={busy} className="text-red-500 text-sm shrink-0" onClick={() => setPending(p => p.filter((_, i) => i !== index))}>移除</button>
             </div>
           ))}
