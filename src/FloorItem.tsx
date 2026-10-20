@@ -76,7 +76,7 @@ export function FloorItem({ floor, index, floors, settings, onLongPress }: Props
       )}
 
       {/* 线：上边距 mt-1.5（更近），下边距 mb-1（为下一层留一点底），右边缩进 */}
-      <div className="mx-1 mt-3 h-[1px] bg-[#ebebeb]"></div>
+      <div className="mt-1.5 mb-1 mx-0.5 h-[1px] bg-[#ebebeb]"></div>
     </div>
   )
 }
