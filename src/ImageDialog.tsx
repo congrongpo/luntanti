@@ -1,4 +1,6 @@
 import { useRef, useState } from 'react'
+import { avatarPresets } from './avatarPresets'
+import { OwnerAvatar } from './OwnerAvatar'
 
 async function readImage(file: File, avatar: boolean): Promise<string> {
   if (!file.type.startsWith('image/')) throw new Error('请选择图片文件')
@@ -36,6 +38,23 @@ export function ImageDialog({ images, avatar = false, onSave, onClose }: {
       <div role="dialog" aria-modal="true" aria-label={avatar ? '修改楼主头像' : '添加图片'}
         className="w-full max-w-[360px] bg-white rounded-xl p-4 max-h-[80dvh] flex flex-col" onClick={e => e.stopPropagation()}>
         <div className="mb-3 font-medium text-sm text-gray-800">{avatar ? '修改楼主头像' : '添加图片'}</div>
+        {avatar && (
+          <div className="mb-3">
+            <div className="mb-2 text-sm text-gray-600">默认头像颜色</div>
+            <div className="flex flex-wrap gap-2">
+              {avatarPresets.map(preset => (
+                <button key={preset.name} type="button" disabled={busy}
+                  aria-label={`${preset.name}默认头像`}
+                  aria-pressed={(pending[0] ?? '') === preset.src}
+                  title={`${preset.name}默认头像`}
+                  className={`rounded-full p-1 disabled:opacity-50 ${(pending[0] ?? '') === preset.src ? 'ring-2 ring-blue-500' : ''}`}
+                  onClick={() => setPending(preset.src ? [preset.src] : [])}>
+                  <OwnerAvatar src={preset.src} />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         <div className="overflow-y-auto space-y-3">
           {pending.map((src, index) => (
             <div key={index} className="flex items-start gap-2">

@@ -50,7 +50,7 @@ export function FloorItem({ floor, index, floors, settings, onLongPress }: Props
             if (!q) return null
             return (
               <div key={qid} className="line-clamp-2 leading-snug">
-                <span className="font-medium text-gray-600 mr-1">{q.nickname || '匿名'}:</span>
+                <span className="font-medium text-gray-600 mr-1">{q.nickname || (q.isOwner ? '楼主' : '匿名')}:</span>
                 {q.content}
               </div>
             )
