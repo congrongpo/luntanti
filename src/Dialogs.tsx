@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import type { Floor } from './types'
 
 export function SingleFieldDialog({
@@ -74,16 +74,24 @@ export const HEADER_MENU_ITEMS = [
 ]
 
 export function FloorPicker({
-  title, floors, multiple, selected, onConfirm, onClose,
+  title, floors, multiple, selected, initialScrollToBottom = false, onConfirm, onClose,
 }: {
   title: string
   floors: Floor[]
   multiple: boolean
   selected?: string[]
+  initialScrollToBottom?: boolean
   onConfirm: (ids: string[]) => void
   onClose: () => void
 }) {
   const [picked, setPicked] = useState<string[]>(selected ?? [])
+  const listRef = useRef<HTMLDivElement>(null)
+
+  useLayoutEffect(() => {
+    if (initialScrollToBottom && listRef.current) {
+      listRef.current.scrollTop = listRef.current.scrollHeight
+    }
+  }, [initialScrollToBottom])
 
   const toggle = (id: string) => {
     if (multiple) {
@@ -97,7 +105,7 @@ export function FloorPicker({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-6" onClick={onClose}>
       <div className="w-full max-w-[360px] bg-white rounded-xl p-4 max-h-[70vh] flex flex-col" onClick={e => e.stopPropagation()}>
         <div className="mb-3 font-medium text-sm text-gray-800">{title}</div>
-        <div className="flex-1 overflow-y-auto no-scrollbar border rounded divide-y">
+        <div ref={listRef} className="flex-1 min-h-0 overflow-y-auto no-scrollbar border rounded divide-y">
           {floors.map((f, i) => (
             <button key={f.id} onClick={() => toggle(f.id)}
               className={`w-full text-left px-3 py-2.5 text-[14px] ${picked.includes(f.id) ? 'bg-blue-50' : ''}`}>

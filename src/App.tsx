@@ -49,6 +49,7 @@ export default function App() {
   const [storageError, setStorageError] = useState(false)
   
   const listRef = useRef<HTMLDivElement>(null)
+  const scrollToReply = useRef(false)
   const headerTimer = useRef<number | null>(null)
   const phoneRef = useRef<HTMLDivElement>(null)
   
@@ -70,6 +71,8 @@ export default function App() {
   }, [post])
 
   useEffect(() => {
+    if (!scrollToReply.current) return
+    scrollToReply.current = false
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight })
   }, [post.floors.length])
 
@@ -88,6 +91,7 @@ export default function App() {
       if (!content) return
       setPost(p => ({ ...p, title: content }))
     } else {
+      scrollToReply.current = true
       setPost(p => ({ ...p, floors: [...p.floors, createFloor(content)] }))
     }
     setDraft('')
@@ -433,6 +437,7 @@ export default function App() {
             <FloorPicker 
               title="选择要引用的楼层（可多选）" 
               floors={availableFloors} 
+              initialScrollToBottom
               multiple 
               selected={post.floors[currentIndex].quotes} 
               onClose={() => setDialog(null)} 
