@@ -7,9 +7,10 @@ type Props = {
   floors: Floor[]
   settings: Post['settings']
   onLongPress: (id: string) => void
+  showDivider?: boolean
 }
 
-export function FloorItem({ floor, index, floors, settings, onLongPress }: Props) {
+export function FloorItem({ floor, index, floors, settings, onLongPress, showDivider = true }: Props) {
   const timer = useRef<number | null>(null)
   const start = () => {
     timer.current = window.setTimeout(() => onLongPress(floor.id), 500)
@@ -83,7 +84,7 @@ export function FloorItem({ floor, index, floors, settings, onLongPress }: Props
         </div>
       )}
 
-      <div className="mt-1.5 mb-0.5 mx-0.5 h-[1px] bg-[#ebebeb]"></div>
+      {showDivider && <div className="mt-1.5 mb-0.5 mx-0.5 h-[1px] bg-[#ebebeb]"></div>}
     </div>
   )
 }

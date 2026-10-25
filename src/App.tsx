@@ -187,28 +187,39 @@ export default function App() {
       
       flushSync(() => {
         root.render(
-          <div style={{ padding: '16px', fontFamily: 'system-ui, sans-serif', backgroundColor: '#fff', width: '100%', boxSizing: 'border-box' }}>
+          <div style={{ paddingBottom: '6px', backgroundColor: '#fff', width: '100%', boxSizing: 'border-box' }}>
             {keepHeader && idx === 0 && (
-              <div style={{ borderBottom: '1px solid #eee', paddingBottom: '12px', marginBottom: '12px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                  <div className="flex items-center gap-2" style={{ fontSize: `${post.settings.fontSizeBody}px`, color: '#333' }}>
-                    <OwnerAvatar src={post.avatar} />
-                    {post.nickname || '楼主'}
+              <>
+                <div className="px-4 py-3 border-b border-gray-200 bg-gray-50 select-none">
+                  <div className="flex justify-between items-center mb-1.5">
+                    <div className="text-gray-800 flex items-center gap-2 min-w-0" style={{ fontSize: `${post.settings.fontSizeBody}px` }}>
+                      <OwnerAvatar src={post.avatar} />
+                      {post.nickname || '楼主'}
+                    </div>
+                    {post.boardName && (
+                      <span className="text-gray-500 bg-gray-200/60 px-2 py-0.5 rounded" style={{ fontSize: `${post.settings.fontSizeSub - 1}px` }}>
+                        {post.boardName}
+                      </span>
+                    )}
                   </div>
-                  {post.boardName && <div style={{ fontSize: `${post.settings.fontSizeSub - 1}px`, color: '#888', backgroundColor: '#f3f4f6', padding: '0 4px', borderRadius: '2px' }}>{post.boardName}</div>}
+                  <div className="font-bold mb-1.5 break-words text-gray-900" style={{ fontSize: `${post.settings.fontSizeTitle}px`, lineHeight: 1.3 }}>
+                    {post.title || '未命名帖子'}
+                  </div>
+                  <div className="whitespace-pre-wrap break-words text-gray-800" style={{ fontSize: `${post.settings.fontSizeBody}px`, lineHeight: 1.4 }}>
+                    {post.body || '（长按编辑帖子正文）'}
+                  </div>
                 </div>
-                <div style={{ fontWeight: 'bold', fontSize: `${post.settings.fontSizeTitle}px`, marginBottom: '8px', color: '#000' }}>{post.title}</div>
-                {post.body && (
-                  <div style={{ fontSize: `${post.settings.fontSizeBody}px`, whiteSpace: 'pre-wrap', color: '#333', lineHeight: 1.6 }}>{post.body}</div>
-                )}
-                <div style={{ fontWeight: 'bold', fontSize: `${post.settings.fontSizeTitle - 4}px`, marginTop: '14px', marginBottom: '6px', color: '#333' }}>回帖区</div>
-              </div>
+                <div className="px-4 py-2.5 font-bold text-gray-700 bg-white border-b border-gray-200" style={{ fontSize: `${post.settings.fontSizeBody - 1}px` }}>
+                  回帖区
+                </div>
+              </>
             )}
-            {chunk.map(floor => {
+            {chunk.map((floor, chunkIndex) => {
               const originalIndex = post.floors.findIndex(f => f.id === floor.id)
               return (
                 <FloorItem key={floor.id} floor={floor} index={originalIndex}
                   floors={post.floors} settings={post.settings}
+                  showDivider={chunkIndex < chunk.length - 1}
                   onLongPress={() => {}} />
               )
             })}
