@@ -16,6 +16,7 @@ export type Post = {
   boardName: string
   settings: {
     showLikes: boolean
+    likesPosition: 'left' | 'right'
     fontSizeTitle: number
     fontSizeBody: number
     fontSizeSub: number
@@ -41,6 +42,7 @@ export const initialPost: Post = {
   boardName: '',
   settings: { 
     showLikes: true,
+    likesPosition: 'right',
     fontSizeTitle: 19,
     fontSizeBody: 17,
     fontSizeSub: 14,
@@ -84,6 +86,7 @@ export const normalizePost = (data: any): Post => ({
   boardName: data?.boardName ?? '',
   settings: { 
     showLikes: data?.settings?.showLikes ?? true,
+    likesPosition: data?.settings?.likesPosition === 'left' ? 'left' : 'right',
     fontSizeTitle: data?.settings?.fontSizeTitle ?? 22,
     fontSizeBody: data?.settings?.fontSizeBody ?? 17,
     fontSizeSub: data?.settings?.fontSizeSub ?? 14,

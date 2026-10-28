@@ -190,7 +190,7 @@ export default function App() {
           <div style={{ paddingBottom: '6px', backgroundColor: '#fff', width: '100%', boxSizing: 'border-box' }}>
             {keepHeader && idx === 0 && (
               <>
-                <div className="px-4 py-3 border-b border-gray-200 bg-gray-50 select-none">
+                <div className="px-4 py-3 bg-white select-none">
                   <div className="flex justify-between items-center mb-1.5">
                     <div className="text-gray-800 flex items-center gap-2 min-w-0" style={{ fontSize: `${post.settings.fontSizeBody}px` }}>
                       <OwnerAvatar src={post.avatar} />
@@ -291,6 +291,17 @@ export default function App() {
               <input type="checkbox" className="w-4 h-4" checked={post.settings.showLikes}
                 onChange={e => setPost(p => ({ ...p, settings: { ...p.settings, showLikes: e.target.checked } }))} />
             </label>
+            <label className="flex justify-between items-center">
+              点赞数位置
+              <select value={post.settings.likesPosition} className="border rounded px-2 py-1 bg-white"
+                onChange={e => {
+                  const likesPosition = e.target.value === 'left' ? 'left' : 'right'
+                  setPost(p => ({ ...p, settings: { ...p.settings, likesPosition } }))
+                }}>
+                <option value="left">最左侧</option>
+                <option value="right">最右侧</option>
+              </select>
+            </label>
             <button onClick={() => setPost(p => ({ ...p, floors: randomizeLikes(p.floors) }))}
               className="w-full py-2 border rounded bg-white">随机设置所有点赞数</button>
             <button onClick={() => setPost(p => ({ ...p, floors: clearLikes(p.floors) }))}
@@ -316,7 +327,7 @@ export default function App() {
             onPointerLeave={onHeaderPointerUp}
             onPointerCancel={onHeaderPointerUp}
             onContextMenu={e => e.preventDefault()}
-            className="px-4 py-3 border-b border-gray-200 bg-gray-50 select-none"
+            className="px-4 py-3 bg-white select-none"
           >
             <div className="flex justify-between items-center mb-1.5">
               <div className="text-gray-800 flex items-center gap-2 min-w-0" style={{ fontSize: `${post.settings.fontSizeBody}px` }}>
