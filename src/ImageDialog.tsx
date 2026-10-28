@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { avatarPresets } from './avatarPresets'
+import { avatarPresets, resolveAvatarSrc } from './avatarPresets'
 import { OwnerAvatar } from './OwnerAvatar'
 
 async function readImage(file: File, avatar: boolean): Promise<string> {
@@ -28,7 +28,7 @@ export function ImageDialog({ images, avatar = false, onSave, onClose }: {
   onSave: (images: string[]) => void
   onClose: () => void
 }) {
-  const [pending, setPending] = useState(images)
+  const [pending, setPending] = useState(() => avatar ? images.map(resolveAvatarSrc) : images)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const reading = useRef(false)
@@ -47,7 +47,7 @@ export function ImageDialog({ images, avatar = false, onSave, onClose }: {
                   aria-label={`${preset.name}默认头像`}
                   aria-pressed={(pending[0] ?? '') === preset.src}
                   title={`${preset.name}默认头像`}
-                  className={`rounded-full p-1 disabled:opacity-50 ${(pending[0] ?? '') === preset.src ? 'ring-2 ring-blue-500' : ''}`}
+                  className={`rounded-xl p-1 disabled:opacity-50 ${(pending[0] ?? '') === preset.src ? 'ring-2 ring-blue-500' : ''}`}
                   onClick={() => setPending(preset.src ? [preset.src] : [])}>
                   <OwnerAvatar src={preset.src} />
                 </button>
@@ -60,7 +60,7 @@ export function ImageDialog({ images, avatar = false, onSave, onClose }: {
             <div key={index} className="flex items-start gap-2">
               <div className="min-w-0 flex-1">
                 <img src={src} alt={avatar ? '头像预览' : `图片预览 ${index + 1}`}
-                  className={avatar ? 'w-20 h-20 rounded-full object-cover' : 'block w-auto h-auto max-w-full max-h-48 object-contain'} />
+                  className={avatar ? 'w-20 h-20 rounded-lg object-cover' : 'block w-auto h-auto max-w-full max-h-48 object-contain'} />
               </div>
               <button disabled={busy} className="text-red-500 text-sm shrink-0" onClick={() => setPending(p => p.filter((_, i) => i !== index))}>移除</button>
             </div>
