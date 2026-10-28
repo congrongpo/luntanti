@@ -3,6 +3,7 @@ export type Floor = {
   nickname: string
   content: string
   images: string[]
+  imageWidths: (number | null)[]
   likes: number
   quotes: string[]
   isOwner: boolean
@@ -29,6 +30,7 @@ export const createFloor = (content: string): Floor => ({
   nickname: '',
   content,
   images: [],
+  imageWidths: [],
   likes: 0,
   quotes: [],
   isOwner: false,
@@ -78,6 +80,24 @@ export const randomizeLikes = (floors: Floor[]) =>
 export const clearLikes = (floors: Floor[]) =>
   floors.map(f => ({ ...f, likes: 0 }))
 
+export const normalizeImageWidth = (width: unknown): number | null =>
+  typeof width === 'number' && Number.isFinite(width) && width > 0
+    ? Math.max(1, Math.min(10000, Math.round(width)))
+    : null
+
+const normalizeFloorImages = (floor: { images?: unknown; imageWidths?: unknown }) => {
+  const images: string[] = []
+  const imageWidths: (number | null)[] = []
+  if (Array.isArray(floor.images)) {
+    floor.images.forEach((image: unknown, index: number) => {
+      if (typeof image !== 'string') return
+      images.push(image)
+      imageWidths.push(normalizeImageWidth(Array.isArray(floor.imageWidths) ? floor.imageWidths[index] : null))
+    })
+  }
+  return { images, imageWidths }
+}
+
 export const normalizePost = (data: any): Post => ({
   avatar: typeof data?.avatar === 'string' ? data.avatar : '',
   title: data?.title ?? '',
@@ -96,7 +116,7 @@ export const normalizePost = (data: any): Post => ({
         id: f.id || crypto.randomUUID(),
         nickname: f.nickname ?? '',
         content: f.content ?? '',
-        images: Array.isArray(f.images) ? f.images.filter((image: unknown) => typeof image === 'string') : [],
+        ...normalizeFloorImages(f),
         likes: f.likes ?? 0,
         quotes: Array.isArray(f.quotes) ? f.quotes : [],
         isOwner: !!f.isOwner,

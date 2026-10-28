@@ -70,6 +70,7 @@ export function FloorItem({ floor, index, floors, settings, onLongPress, showDiv
         <div className="mt-2 space-y-2">
           {floor.images.map((src, i) => (
             <img key={i} src={src} alt={`回复图片 ${i + 1}`} draggable={false}
+              style={{ width: floor.imageWidths[i] ?? 'auto' }}
               className="block w-auto max-w-full h-auto rounded" />
           ))}
         </div>

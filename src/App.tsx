@@ -430,8 +430,8 @@ export default function App() {
         {dialog?.type === 'editImages' && (() => {
           const f = targetFloor(dialog.floorId)
           if (!f) return null
-          return <ImageDialog images={f.images}
-            onSave={images => setPost(p => ({ ...p, floors: updateFloor(p.floors, f.id, { images }) }))}
+          return <ImageDialog images={f.images} imageWidths={f.imageWidths}
+            onSave={(images, imageWidths) => setPost(p => ({ ...p, floors: updateFloor(p.floors, f.id, { images, imageWidths }) }))}
             onClose={() => setDialog(null)} />
         })()}
 
