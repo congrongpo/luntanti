@@ -11,12 +11,14 @@ import { FloorItem } from './FloorItem'
 import { OwnerAvatar } from './OwnerAvatar'
 import { ImageDialog } from './ImageDialog'
 import { ScreenshotResults } from './ScreenshotResults'
+import { ExportDialog } from './ExportDialog'
 import {
   ActionSheet, SingleFieldDialog, FloorPicker, LikesDialog, ScreenshotDialog, FontSizeSetting,
   FLOOR_MENU_ITEMS, HEADER_MENU_ITEMS, type ScreenshotConfig,
 } from './Dialogs'
 
 type DialogState =
+  | { type: 'importText' }
   | { type: 'editAvatar' }
   | { type: 'editImages'; floorId: string }
   | { type: 'floorMenu'; floorId: string }
@@ -49,6 +51,7 @@ export default function App() {
   const [showSettings, setShowSettings] = useState(false)
   const [storageError, setStorageError] = useState(false)
   const [screenshots, setScreenshots] = useState<string[]>([])
+  const [exportText, setExportText] = useState<string | null>(null)
   
   const listRef = useRef<HTMLDivElement>(null)
   const scrollToReply = useRef(false)
@@ -100,13 +103,7 @@ export default function App() {
   }
 
   const exportJSON = () => {
-    const blob = new Blob([JSON.stringify(post, null, 2)], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `forum-post-${Date.now()}.json`
-    a.click()
-    URL.revokeObjectURL(url)
+    setExportText(JSON.stringify(post, null, 2))
   }
 
   const importJSON = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -270,6 +267,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-gray-200 flex justify-center">
       {screenshots.length > 0 && <ScreenshotResults images={screenshots} onClose={() => setScreenshots([])} />}
+      {exportText !== null && <ExportDialog text={exportText} onClose={() => setExportText(null)} />}
       <div ref={phoneRef} className="w-full w-screen max-w-[390px] bg-white h-[100dvh] flex flex-col shadow-xl overflow-hidden">
         
         <div className="shrink-0 z-20 bg-white border-b border-gray-200 px-4 py-2.5 flex items-center justify-between">
@@ -315,6 +313,7 @@ export default function App() {
             <button onClick={() => setDialog({ type: 'screenshot' })}
               className="w-full py-2 border rounded bg-white">开始截图</button>
             <button onClick={exportJSON} className="w-full py-2 border rounded bg-white">导出文件</button>
+            <button onClick={() => setDialog({ type: 'importText' })} className="w-full py-2 border rounded bg-white">粘贴导入</button>
             <label className="w-full py-2 border rounded bg-white text-center cursor-pointer block">
               导入文件
               <input type="file" accept=".json,application/json" onChange={importJSON} className="hidden" />
@@ -426,6 +425,19 @@ export default function App() {
               })
             }}
             onClose={() => setDialog(null)} />
+        )}
+
+        {dialog?.type === 'importText' && (
+          <SingleFieldDialog label="粘贴完整 JSON 备份内容" value="" multiline
+            onSave={text => {
+              try {
+                const data = JSON.parse(text)
+                if (!data || !Array.isArray(data.floors)) throw new Error('invalid backup')
+                setPost(normalizePost(data))
+              } catch {
+                alert('备份格式不正确，请复制完整的 JSON 内容后重试。')
+              }
+            }} onClose={() => setDialog(null)} />
         )}
 
         {dialog?.type === 'editAvatar' && (
