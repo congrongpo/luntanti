@@ -60,7 +60,7 @@ export function ScreenshotResults({ images, onClose }: { images: string[]; onClo
           {error && <div role="alert" className="text-sm text-red-500">{error}</div>}
           {downloads.map(({ file, url }, index) => (
             <div key={index}>
-              <img src={url} alt={`截图 ${index + 1}`} className="block w-full h-auto border border-gray-200" />
+              <img src={images[index]} alt={`截图 ${index + 1}`} className="block w-full h-auto border border-gray-200" />
               <div className="flex flex-wrap justify-center gap-4 text-blue-500 text-sm py-2">
                 <a href={url} download={file.name}>下载第 {index + 1} 张</a>
                 {canShare(file) && <button disabled={sharing} onClick={() => share(file)} className="disabled:opacity-50">系统分享 / 保存</button>}
