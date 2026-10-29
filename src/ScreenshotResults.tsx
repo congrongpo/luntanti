@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { screenshotArchive } from './screenshotArchive'
 
 export function ScreenshotResults({ images, onClose }: { images: string[]; onClose: () => void }) {
@@ -6,6 +6,10 @@ export function ScreenshotResults({ images, onClose }: { images: string[]; onClo
   const [archiveUrl, setArchiveUrl] = useState('')
   const [error, setError] = useState('')
   const [sharing, setSharing] = useState(false)
+  const [batchProgress, setBatchProgress] = useState<number | null>(null)
+  const [batchRunning, setBatchRunning] = useState(false)
+  const batchRun = useRef(0)
+  useEffect(() => () => { batchRun.current += 1 }, [images])
   useEffect(() => {
     let active = true
     const files = images.map((src, index) => {
@@ -48,16 +52,28 @@ export function ScreenshotResults({ images, onClose }: { images: string[]; onClo
     }
   }
 
-  const downloadAll = () => {
+  const downloadAll = async () => {
+    if (batchRunning) return
+    const run = ++batchRun.current
     setError('')
-    images.forEach((src, index) => {
-      const link = document.createElement('a')
-      link.href = src
-      link.download = `forum-${index + 1}.png`
-      document.body.appendChild(link)
-      link.click()
-      link.remove()
-    })
+    setBatchRunning(true)
+    setBatchProgress(0)
+    try {
+      for (let index = 0; index < images.length; index++) {
+        if (index > 0) await new Promise(resolve => window.setTimeout(resolve, 1200))
+        if (batchRun.current !== run) return
+        const link = document.createElement('a')
+        link.href = images[index]
+        link.download = `forum-${index + 1}.png`
+        document.body.appendChild(link)
+        try { link.click() } finally { link.remove() }
+        setBatchProgress(index + 1)
+      }
+    } catch {
+      if (batchRun.current === run) setError('批量下载中断，请使用 ZIP 或逐张下载。')
+    } finally {
+      if (batchRun.current === run) setBatchRunning(false)
+    }
   }
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
@@ -66,7 +82,12 @@ export function ScreenshotResults({ images, onClose }: { images: string[]; onClo
           <span>已生成 {images.length} 张截图</span>
           <button onClick={onClose} className="text-gray-500 px-2">关闭</button>
         </div>
-        <button onClick={downloadAll} className="shrink-0 bg-blue-500 text-white rounded py-2 mb-3">一键下载全部图片</button>
+        <button onClick={downloadAll} disabled={batchRunning} className="shrink-0 bg-blue-500 text-white rounded py-2 mb-3 disabled:opacity-50">
+          {batchRunning ? `正在发起下载 ${batchProgress ?? 0}/${images.length}` : '一键下载全部图片'}
+        </button>
+        {batchProgress !== null && <div role="status" className="shrink-0 text-sm text-gray-500 mb-3">
+          已发起 {batchProgress}/{images.length} 张下载请求，请在浏览器下载记录中确认。若数量不足，请允许多文件下载或使用 ZIP。
+        </div>}
         {archiveUrl && <a href={archiveUrl} download="forum-screenshots.zip" className="shrink-0 block text-center border border-blue-500 text-blue-500 rounded py-2 mb-3">下载全部截图（ZIP）</a>}
         <div className="overflow-y-auto space-y-4">
           <div className="text-sm text-gray-500">一键下载会逐张保存 PNG 图片。若不成功，可尝试其他五种方法：点击下载第n张图片、长按图片选择保存图片、系统分享、打开原图后长按下载、下载ZIP后解压缩保存图片。（如果依旧下载不了，请点击导出文件，去别的浏览器导入文件后再次尝试截图）</div>

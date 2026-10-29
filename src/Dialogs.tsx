@@ -196,7 +196,7 @@ export function ScreenshotDialog({ totalFloors, onStart, onClose }: {
             if (totalFloors === 0) { alert('还没有楼层可以截图'); return }
             if (start > end) { alert('开始楼层不能大于结束楼层'); return }
             onStart({ keepHeader, startFloor: start, endFloor: end, floorsPerShot: perShot })
-          }} className="px-4 py-1.5 text-sm bg-blue-500 text-white rounded">开始截图</button>
+          }} className="px-4 py-1.5 text-sm bg-blue-500 text-white rounded">开始截图（可能需要等待几秒钟）</button>
         </div>
       </div>
     </div>
