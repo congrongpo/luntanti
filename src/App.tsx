@@ -314,9 +314,9 @@ export default function App() {
               className="w-full py-2 border rounded bg-white text-gray-600">点赞数清零</button>
             <button onClick={() => setDialog({ type: 'screenshot' })}
               className="w-full py-2 border rounded bg-white">开始截图</button>
-            <button onClick={exportJSON} className="w-full py-2 border rounded bg-white">导出 JSON</button>
+            <button onClick={exportJSON} className="w-full py-2 border rounded bg-white">导出文件</button>
             <label className="w-full py-2 border rounded bg-white text-center cursor-pointer block">
-              导入 JSON
+              导入文件
               <input type="file" accept=".json,application/json" onChange={importJSON} className="hidden" />
             </label>
             <button onClick={clearPost} className="w-full py-2 border border-red-200 text-red-500 rounded bg-white mt-4">

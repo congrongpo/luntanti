@@ -56,7 +56,7 @@ export function ScreenshotResults({ images, onClose }: { images: string[]; onClo
         </div>
         {archiveUrl && <a href={archiveUrl} download="forum-screenshots.zip" className="block text-center bg-blue-500 text-white rounded py-2 mb-3">下载全部截图（ZIP）</a>}
         <div className="overflow-y-auto space-y-4">
-          <div className="text-sm text-gray-500">点击下载图片；若浏览器拦截，可尝试系统分享、打开原图或下载 ZIP。</div>
+          <div className="text-sm text-gray-500">下载图片的五种方法：点击下载第n张图片、长按图片选择保存图片、系统分享、打开原图后长按下载、下载ZIP后解压缩保存图片。（如果依旧下载不了，请点击导出文件，去别的浏览器导入文件后再次尝试截图）</div>
           {error && <div role="alert" className="text-sm text-red-500">{error}</div>}
           {downloads.map(({ file, url }, index) => (
             <div key={index}>
