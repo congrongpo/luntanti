@@ -10,6 +10,7 @@ import {
 import { FloorItem } from './FloorItem'
 import { OwnerAvatar } from './OwnerAvatar'
 import { ImageDialog } from './ImageDialog'
+import { ScreenshotResults } from './ScreenshotResults'
 import {
   ActionSheet, SingleFieldDialog, FloorPicker, LikesDialog, ScreenshotDialog, FontSizeSetting,
   FLOOR_MENU_ITEMS, HEADER_MENU_ITEMS, type ScreenshotConfig,
@@ -47,6 +48,7 @@ export default function App() {
   const [dialog, setDialog] = useState<DialogState>(null)
   const [showSettings, setShowSettings] = useState(false)
   const [storageError, setStorageError] = useState(false)
+  const [screenshots, setScreenshots] = useState<string[]>([])
   
   const listRef = useRef<HTMLDivElement>(null)
   const scrollToReply = useRef(false)
@@ -182,6 +184,8 @@ export default function App() {
       chunks.push(selected.slice(i, i + floorsPerShot))
     }
 
+    const generated: string[] = []
+    try {
     for (let idx = 0; idx < chunks.length; idx++) {
       const chunk = chunks[idx]
       
@@ -237,20 +241,21 @@ export default function App() {
           style: { opacity: '1' },
           width: actualWidth 
         })
-        const a = document.createElement('a')
-        a.href = dataUrl
-        a.download = `forum-${idx + 1}.png`
-        a.click()
+        generated.push(dataUrl)
       } catch (err) {
         console.error('截图失败', err)
-        alert('截图失败，请重试')
+        alert(`第 ${idx + 1} 张截图失败，请重试。已生成的截图仍可保存。`)
+        break
       }
       
       await new Promise(r => setTimeout(r, 300))
     }
 
-    root.unmount()
-    document.body.removeChild(host)
+    } finally {
+      root.unmount()
+      document.body.removeChild(host)
+      if (generated.length) setScreenshots(generated)
+    }
   }
 
   const targetFloor = (id: string) => post.floors.find(f => f.id === id)
@@ -264,6 +269,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-200 flex justify-center">
+      {screenshots.length > 0 && <ScreenshotResults images={screenshots} onClose={() => setScreenshots([])} />}
       <div ref={phoneRef} className="w-full w-screen max-w-[390px] bg-white h-[100dvh] flex flex-col shadow-xl overflow-hidden">
         
         <div className="shrink-0 z-20 bg-white border-b border-gray-200 px-4 py-2.5 flex items-center justify-between">
