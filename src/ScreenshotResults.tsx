@@ -47,6 +47,18 @@ export function ScreenshotResults({ images, onClose }: { images: string[]; onClo
       setSharing(false)
     }
   }
+
+  const downloadAll = () => {
+    setError('')
+    images.forEach((src, index) => {
+      const link = document.createElement('a')
+      link.href = src
+      link.download = `forum-${index + 1}.png`
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+    })
+  }
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
       <div role="dialog" aria-modal="true" aria-label="截图完成" className="w-full max-w-[390px] max-h-[85dvh] bg-white rounded-xl p-4 flex flex-col">
@@ -54,9 +66,10 @@ export function ScreenshotResults({ images, onClose }: { images: string[]; onClo
           <span>已生成 {images.length} 张截图</span>
           <button onClick={onClose} className="text-gray-500 px-2">关闭</button>
         </div>
-        {archiveUrl && <a href={archiveUrl} download="forum-screenshots.zip" className="block text-center bg-blue-500 text-white rounded py-2 mb-3">下载全部截图（ZIP）</a>}
+        <button onClick={downloadAll} className="shrink-0 bg-blue-500 text-white rounded py-2 mb-3">一键下载全部图片</button>
+        {archiveUrl && <a href={archiveUrl} download="forum-screenshots.zip" className="shrink-0 block text-center border border-blue-500 text-blue-500 rounded py-2 mb-3">下载全部截图（ZIP）</a>}
         <div className="overflow-y-auto space-y-4">
-          <div className="text-sm text-gray-500">下载图片的五种方法：点击下载第n张图片、长按图片选择保存图片、系统分享、打开原图后长按下载、下载ZIP后解压缩保存图片。（如果依旧下载不了，请点击导出文件，去别的浏览器导入文件后再次尝试截图）</div>
+          <div className="text-sm text-gray-500">一键下载会逐张保存 PNG 图片。若不成功，可尝试其他五种方法：点击下载第n张图片、长按图片选择保存图片、系统分享、打开原图后长按下载、下载ZIP后解压缩保存图片。（如果依旧下载不了，请点击导出文件，去别的浏览器导入文件后再次尝试截图）</div>
           {error && <div role="alert" className="text-sm text-red-500">{error}</div>}
           {downloads.map(({ file, url }, index) => (
             <div key={index}>
